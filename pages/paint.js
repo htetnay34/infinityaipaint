@@ -121,20 +121,7 @@ export default function Home() {
             )}
 
             <Download predictions={predictions} />
-            <Link href="https://replicate.com/stability-ai/stable-diffusion">
-              <div href="" className="lil-button">
-                <RocketIcon className="icon" />
-                Run with an API
-              </div>
-            </Link>
-            <Link
-              className="lil-button"
-              target="_blank"
-              href="https://github.com/aiden77mori/replainter"
-            >
-              <CodeIcon className="icon" />
-              View on GitHub
-            </Link>
+          
           </div>
         </div>
       </main>
