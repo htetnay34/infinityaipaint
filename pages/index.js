@@ -9,25 +9,7 @@ export default function About() {
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       {/* <h1 className="text-center text-7xl pb-3">🎨</h1> */}
-      <div className="pb-5 text-lg">
-        <strong>Inpainting</strong> is a process where missing parts of an
-        artwork are filled in to present a complete image. This{" "}
-        <Link className="underline" href="https://github.com/zeke/inpainter">
-          open-source demo
-        </Link>{" "}
-        uses the{" "}
-        <Link
-          className="underline"
-          href="https://replicate.com/stability-ai/stable-diffusion"
-        >
-          Stable Diffusion
-        </Link>{" "}
-        machine learning model and{" "}
-        <Link className="underline" href="https://replicate.com">
-          Replicate&apos;s API
-        </Link>{" "}
-        to inpaint images right in your browser.
-      </div>
+  
 
       <Link href="/paint">
         <video autoPlay loop muted playsInline className="w-full cursor-pointer">
