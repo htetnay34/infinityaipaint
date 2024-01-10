@@ -12,7 +12,6 @@ const samplePrompts = [
 ];
 import sample from "lodash/sample";
 
-// Function for translating text to English using the Google Translate API
 async function translateToEnglish(text) {
   try {
     const apiUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=en&dt=t&q=${encodeURIComponent(text)}`;
@@ -32,9 +31,6 @@ async function translateToEnglish(text) {
   }
 }
 
-
-
-
 export default function PromptForm(props) {
   const [inputText, setInputText] = useState('');
   const [translatedPrompt, setTranslatedPrompt] = useState('');
@@ -43,25 +39,26 @@ export default function PromptForm(props) {
   const handleInputChange = async (event) => {
     const userInput = event.target.value;
     setInputText(userInput);
+  };
+
+  const handleGenerate = async (event) => {
+    event.preventDefault();
 
     // Translate the input text from Myanmar to English
     try {
-      const translation = await translateToEnglish(userInput);
+      const translation = await translateToEnglish(inputText);
       setTranslatedPrompt(translation);
+
+      // Use translatedPrompt for further processing or submission
+      props.onSubmit(translatedPrompt);
     } catch (error) {
       setTranslatedPrompt('');
       // Handle translation error if needed
     }
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Use translatedPrompt for further processing or submission
-    props.onSubmit(translatedPrompt);
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="py-5 animate-in fade-in duration-700">
+    <form onSubmit={handleGenerate} className="py-5 animate-in fade-in duration-700">
       <div className="flex max-w-[512px]">
         <input
           type="text"
