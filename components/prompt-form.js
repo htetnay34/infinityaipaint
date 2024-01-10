@@ -1,5 +1,6 @@
-import { useState } from "react";
 import { useState, useEffect } from "react";
+import sample from "lodash/sample";
+import axios from "axios";
 
 const samplePrompts = [
   "a gentleman otter in a 19th century portrait",
@@ -15,16 +16,18 @@ import sample from "lodash/sample";
 
 async function translateToEnglish(text) {
   try {
-    const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=my|en`;
+    const apiUrl = `https://libretranslate.de/translate`;
 
-    const response = await fetch(apiUrl);
-    const data = await response.json();
+    const response = await axios.post(apiUrl, {
+      q: text,
+      source: 'my',
+      target: 'en',
+    });
 
-    // Extract the translated text from the response
-    if (data && data.responseData && data.responseData.translatedText) {
-      return data.responseData.translatedText;
+    if (response.data && response.data.translatedText) {
+      return response.data.translatedText;
     } else {
-      console.error('Translation response:', data);
+      console.error('Translation response:', response.data);
       throw new Error('Translation to English failed');
     }
   } catch (error) {
