@@ -12,21 +12,63 @@ const samplePrompts = [
 ];
 import sample from "lodash/sample";
 
+// Function for translating text to English using the Google Translate API
+async function translateToEnglish(text) {
+  try {
+    const apiUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=en&dt=t&q=${encodeURIComponent(text)}`;
+
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+
+    // Extract the translated text from the response
+    if (data && data[0] && data[0][0] && data[0][0][0]) {
+      return data[0][0][0];
+    } else {
+      throw new Error('Translation to English failed');
+    }
+  } catch (error) {
+    console.error('Translation to English failed:', error);
+    throw error;
+  }
+}
+
+
+
+
 export default function PromptForm(props) {
-  const [prompt] = useState(sample(samplePrompts));
+  const [inputText, setInputText] = useState('');
+  const [translatedPrompt, setTranslatedPrompt] = useState('');
   const [image, setImage] = useState(null);
 
+  const handleInputChange = async (event) => {
+    const userInput = event.target.value;
+    setInputText(userInput);
+
+    // Translate the input text from Myanmar to English
+    try {
+      const translation = await translateToEnglish(userInput);
+      setTranslatedPrompt(translation);
+    } catch (error) {
+      setTranslatedPrompt('');
+      // Handle translation error if needed
+    }
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Use translatedPrompt for further processing or submission
+    props.onSubmit(translatedPrompt);
+  };
+
   return (
-    <form
-      onSubmit={props.onSubmit}
-      className="py-5 animate-in fade-in duration-700"
-    >
+    <form onSubmit={handleSubmit} className="py-5 animate-in fade-in duration-700">
       <div className="flex max-w-[512px]">
         <input
           type="text"
-          defaultValue={prompt}
+          value={inputText}
+          onChange={handleInputChange}
           name="prompt"
-          placeholder="Enter a prompt..."
+          placeholder="Enter a prompt in Myanmar..."
           className="block w-full flex-grow rounded-l-md"
         />
 
