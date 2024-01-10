@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import sample from "lodash/sample";
 
 const samplePrompts = [
   "a gentleman otter in a 19th century portrait",
@@ -10,7 +11,7 @@ const samplePrompts = [
   "pencil sketch of robots playing poker",
   "photo of an astronaut riding a horse",
 ];
-import sample from "lodash/sample";
+
 
 async function translateToEnglish(text) {
   try {
