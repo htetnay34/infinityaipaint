@@ -1,3 +1,4 @@
+User
 import { useState } from "react";
 
 const samplePrompts = [
@@ -12,60 +13,27 @@ const samplePrompts = [
 ];
 import sample from "lodash/sample";
 
-async function translateToEnglish(text) {
-  try {
-    const apiUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=en&dt=t&q=${encodeURIComponent(text)}`;
-
-    const response = await fetch(apiUrl);
-    const data = await response.json();
-
-    // Extract the translated text from the response
-    if (data && data[0] && data[0][0] && data[0][0][0]) {
-      return data[0][0][0];
-    } else {
-      throw new Error('Translation to English failed');
-    }
-  } catch (error) {
-    console.error('Translation to English failed:', error);
-    throw error;
-  }
-}
-
 export default function PromptForm(props) {
-  const [inputText, setInputText] = useState('');
+  const [prompt] = useState(sample(samplePrompts));
   const [image, setImage] = useState(null);
 
-  const handleInputChange = async (event) => {
-    const userInput = event.target.value;
-    setInputText(userInput);
-
-    // Translate the input text from Myanmar to English
-    try {
-      const translation = await translateToEnglish(userInput);
-      // Use the translated text for further processing or submission
-      props.onSubmit(translation);
-    } catch (error) {
-      // Handle translation error if needed
-      console.error('Translation error:', error);
-    }
-  };
-
   return (
-    <form onSubmit={(event) => event.preventDefault()} className="py-5 animate-in fade-in duration-700">
+    <form
+      onSubmit={props.onSubmit}
+      className="py-5 animate-in fade-in duration-700"
+    >
       <div className="flex max-w-[512px]">
         <input
           type="text"
-          value={inputText}
-          onChange={handleInputChange}
+          defaultValue={prompt}
           name="prompt"
-          placeholder="Enter a prompt in Myanmar..."
+          placeholder="Enter a prompt..."
           className="block w-full flex-grow rounded-l-md"
         />
 
         <button
           className="bg-black text-white rounded-r-md text-small inline-block px-3 flex-none"
-          onClick={props.onSubmit} // Assuming you want to trigger onSubmit when the button is clicked
-          type="button"
+          type="submit"
         >
           Generate
         </button>
