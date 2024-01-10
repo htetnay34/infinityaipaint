@@ -1,4 +1,3 @@
-User
 import { useState } from "react";
 
 const samplePrompts = [
