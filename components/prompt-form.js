@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const samplePrompts = [
   "a gentleman otter in a 19th century portrait",
@@ -12,21 +13,65 @@ const samplePrompts = [
 ];
 import sample from "lodash/sample";
 
+async function translateToEnglish(text) {
+  try {
+    const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=my|en`;
+
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+
+    // Extract the translated text from the response
+    if (data && data.responseData && data.responseData.translatedText) {
+      return data.responseData.translatedText;
+    } else {
+      console.error('Translation response:', data);
+      throw new Error('Translation to English failed');
+    }
+  } catch (error) {
+    console.error('Translation error:', error);
+    throw error;
+  }
+}
+
 export default function PromptForm(props) {
-  const [prompt] = useState(sample(samplePrompts));
+  const [inputText, setInputText] = useState('');
+  const [translatedPrompt, setTranslatedPrompt] = useState('');
   const [image, setImage] = useState(null);
 
+  useEffect(() => {
+    const fetchTranslation = async () => {
+      try {
+        const translation = await translateToEnglish(inputText);
+        setTranslatedPrompt(translation);
+      } catch (error) {
+        setTranslatedPrompt('');
+        // Handle translation error if needed
+        console.error('Translation error:', error);
+      }
+    };
+
+    fetchTranslation();
+  }, [inputText]);
+
+  const handleInputChange = (event) => {
+    setInputText(event.target.value);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Use translatedPrompt for further processing or submission
+    props.onSubmit(translatedPrompt);
+  };
+
   return (
-    <form
-      onSubmit={props.onSubmit}
-      className="py-5 animate-in fade-in duration-700"
-    >
+    <form onSubmit={handleSubmit} className="py-5 animate-in fade-in duration-700">
       <div className="flex max-w-[512px]">
         <input
           type="text"
-          defaultValue={prompt}
+          value={inputText}
+          onChange={handleInputChange}
           name="prompt"
-          placeholder="Enter a prompt..."
+          placeholder="Enter a prompt in Myanmar..."
           className="block w-full flex-grow rounded-l-md"
         />
 
