@@ -33,32 +33,25 @@ async function translateToEnglish(text) {
 
 export default function PromptForm(props) {
   const [inputText, setInputText] = useState('');
-  const [translatedPrompt, setTranslatedPrompt] = useState('');
   const [image, setImage] = useState(null);
 
   const handleInputChange = async (event) => {
     const userInput = event.target.value;
     setInputText(userInput);
-  };
-
-  const handleGenerate = async (event) => {
-    event.preventDefault();
 
     // Translate the input text from Myanmar to English
     try {
-      const translation = await translateToEnglish(inputText);
-      setTranslatedPrompt(translation);
-
-      // Use translatedPrompt for further processing or submission
-      props.onSubmit(translatedPrompt);
+      const translation = await translateToEnglish(userInput);
+      // Use the translated text for further processing or submission
+      props.onSubmit(translation);
     } catch (error) {
-      setTranslatedPrompt('');
       // Handle translation error if needed
+      console.error('Translation error:', error);
     }
   };
 
   return (
-    <form onSubmit={handleGenerate} className="py-5 animate-in fade-in duration-700">
+    <form onSubmit={(event) => event.preventDefault()} className="py-5 animate-in fade-in duration-700">
       <div className="flex max-w-[512px]">
         <input
           type="text"
@@ -71,7 +64,8 @@ export default function PromptForm(props) {
 
         <button
           className="bg-black text-white rounded-r-md text-small inline-block px-3 flex-none"
-          type="submit"
+          onClick={props.onSubmit} // Assuming you want to trigger onSubmit when the button is clicked
+          type="button"
         >
           Generate
         </button>
