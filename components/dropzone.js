@@ -23,7 +23,7 @@ export default function Dropzone(props) {
       <div className="m-auto">
         <input {...getInputProps()} />
         {isDragActive ? (
-          <p>Drop the image here ...</p>
+          <p>ဒီနေရာကို ပုံထည့်ပါ ...</p>
         ) : (
           <p>Optional: Drag and drop a starting image here</p>
         )}
