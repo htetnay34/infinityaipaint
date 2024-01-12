@@ -40,24 +40,35 @@ export default function PromptForm(props) {
     const [translatedPrompt, setTranslatedPrompt] = useState("");
 
     useEffect(() => {
-        // Function to handle keyup event
-        const handleKeyUp = async () => {
+        let timeoutId;
+
+        const handleKeyUp = () => {
             if (originalPrompt) {
-                try {
-                    const translation = await translateToEnglish(originalPrompt);
-                    setTranslatedPrompt(translation);
-                } catch (error) {
-                    // Handle translation error
-                }
+                clearTimeout(timeoutId);
+
+                // Introduce a 1-second delay before triggering translation
+                timeoutId = setTimeout(async () => {
+                    try {
+                        // Check if the entered text is in Myanmar language
+                        if (isMyanmarLanguage(originalPrompt)) {
+                            const translation = await translateToEnglish(originalPrompt);
+                            setTranslatedPrompt(translation);
+                        } else {
+                            // Reset translated prompt if the language is not Myanmar
+                            setTranslatedPrompt("");
+                        }
+                    } catch (error) {
+                        // Handle translation error
+                    }
+                }, 2000);
             }
         };
 
-        // Attach keyup event listener to the input field
         const inputElement = document.getElementById("promptInput");
         inputElement.addEventListener("keyup", handleKeyUp);
 
-        // Cleanup: Remove event listener on component unmount
         return () => {
+            clearTimeout(timeoutId);
             inputElement.removeEventListener("keyup", handleKeyUp);
         };
     }, [originalPrompt]);
