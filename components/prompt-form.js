@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const samplePrompts = [
   "a gentleman otter in a 19th century portrait",
@@ -12,31 +12,83 @@ const samplePrompts = [
 ];
 import sample from "lodash/sample";
 
+// Function to translate Myanmar text to English using Google Translate API
+function translateToEnglish(text) {
+    return new Promise((resolve, reject) => {
+        const apiUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=my&tl=en&dt=t&q=${encodeURIComponent(text)}`;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                // Extract the translated text from the response
+                if (data && data[0] && data[0][0] && data[0][0][0]) {
+                    resolve(data[0][0][0]);
+                } else {
+                    reject('Translation to English failed');
+                }
+            })
+            .catch(error => {
+                console.error('Translation to English failed:', error);
+                reject(error);
+            });
+    });
+}
+
+
 export default function PromptForm(props) {
-  const [prompt] = useState(sample(samplePrompts));
-  const [image, setImage] = useState(null);
+    const [originalPrompt, setOriginalPrompt] = useState("");
+    const [translatedPrompt, setTranslatedPrompt] = useState("");
 
-  return (
-    <form
-      onSubmit={props.onSubmit}
-      className="py-5 animate-in fade-in duration-700"
-    >
-      <div className="flex max-w-[512px]">
-        <input
-          type="text"
-          defaultValue={prompt}
-          name="prompt"
-          placeholder="Enter a prompt..."
-          className="block w-full flex-grow rounded-l-md"
-        />
+    useEffect(() => {
+        // Function to handle keyup event
+        const handleKeyUp = async () => {
+            if (originalPrompt) {
+                try {
+                    const translation = await translateToEnglish(originalPrompt);
+                    setTranslatedPrompt(translation);
+                } catch (error) {
+                    // Handle translation error
+                }
+            }
+        };
 
-        <button
-          className="bg-black text-white rounded-r-md text-small inline-block px-3 flex-none"
-          type="submit"
+        // Attach keyup event listener to the input field
+        const inputElement = document.getElementById("promptInput");
+        inputElement.addEventListener("keyup", handleKeyUp);
+
+        // Cleanup: Remove event listener on component unmount
+        return () => {
+            inputElement.removeEventListener("keyup", handleKeyUp);
+        };
+    }, [originalPrompt]);
+
+    const handleInputChange = (e) => {
+        const inputText = e.target.value;
+        setOriginalPrompt(inputText);
+    };
+
+    return (
+        <form
+            onSubmit={props.onSubmit}
+            className="py-5 animate-in fade-in duration-700"
         >
-          Generate
-        </button>
-      </div>
-    </form>
-  );
+            <div className="flex max-w-[512px]">
+                <input
+                    type="text"
+                    id="promptInput"
+                    value={translatedPrompt || originalPrompt}
+                    onChange={handleInputChange}
+                    placeholder="Enter a prompt..."
+                    className="block w-full flex-grow rounded-l-md"
+                />
+
+                <button
+                    className="bg-black text-white rounded-r-md text-small inline-block px-3 flex-none"
+                    type="submit"
+                >
+                    Generate
+                </button>
+            </div>
+        </form>
+    );
 }
