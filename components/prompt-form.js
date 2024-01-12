@@ -42,28 +42,35 @@ function isMyanmarLanguage(text) {
     return myanmarCharacterRegex.test(text);
 }
 
-
-
-
 export default function PromptForm(props) {
     const [originalPrompt, setOriginalPrompt] = useState("");
     const [translatedPrompt, setTranslatedPrompt] = useState("");
 
     useEffect(() => {
-        const handleKeyUp = async () => {
+        let timeoutId;
+
+        const handleKeyUp = () => {
             if (originalPrompt) {
-                try {
-                    // Check if the entered text is in Myanmar language
-                    if (isMyanmarLanguage(originalPrompt)) {
-                        const translation = await translateToEnglish(originalPrompt);
-                        setTranslatedPrompt(translation);
-                    } else {
-                        // Reset translated prompt if the language is not Myanmar
-                        setTranslatedPrompt("");
+                clearTimeout(timeoutId);
+
+                // Introduce a 1-second delay before triggering translation
+                timeoutId = setTimeout(async () => {
+                    try {
+                        // Check if the entered text is in Myanmar language
+                        if (isMyanmarLanguage(originalPrompt)) {
+                            const translation = await translateToEnglish(originalPrompt);
+                            console.log("Translated:", translation);
+
+                            setTranslatedPrompt(translation);
+                        } else {
+                            // Reset translated prompt if the language is not Myanmar
+                            setTranslatedPrompt("");
+                        }
+                    } catch (error) {
+                        // Handle translation error
+                        console.error("Translation Error:", error);
                     }
-                } catch (error) {
-                    // Handle translation error
-                }
+                }, 1000);
             }
         };
 
@@ -71,6 +78,7 @@ export default function PromptForm(props) {
         inputElement.addEventListener("keyup", handleKeyUp);
 
         return () => {
+            clearTimeout(timeoutId);
             inputElement.removeEventListener("keyup", handleKeyUp);
         };
     }, [originalPrompt]);
