@@ -46,74 +46,90 @@ function isMyanmarLanguage(text) {
     return myanmarCharacterRegex.test(text);
 }
 
-export default function PromptForm(props) {
-    const [originalPrompt, setOriginalPrompt] = useState("");
-    const [translatedPrompt, setTranslatedPrompt] = useState("");
+// Function to check if the text contains Myanmar (Burmese) characters
+const isMyanmarLanguage = (text) => {
+  // Myanmar Unicode block: U+1000 - U+109F
+  const myanmarCharacterRegex = /[\u1000-\u109F]/;
+  return myanmarCharacterRegex.test(text);
+};
 
-    useEffect(() => {
-        let timeoutId;
+const PromptForm = (props) => {
+  const [originalPrompt, setOriginalPrompt] = useState("");
+  const [translatedPrompt, setTranslatedPrompt] = useState("");
 
-        const handleKeyUp = () => {
-            if (originalPrompt) {
-                clearTimeout(timeoutId);
+  useEffect(() => {
+    let timeoutId;
 
-                // Introduce a 1-second delay before triggering translation
-                timeoutId = setTimeout(async () => {
-                    try {
-                        // Check if the entered text is in Myanmar language
-                        if (isMyanmarLanguage(originalPrompt)) {
-                            const translation = await translateToEnglish(originalPrompt);
-                            console.log("Translated:", translation);
+    const handleKeyUp = () => {
+      if (originalPrompt) {
+        clearTimeout(timeoutId);
 
-                            setTranslatedPrompt(translation);
-                        } else {
-                            // Reset translated prompt if the language is not Myanmar
-                            setTranslatedPrompt("");
-                        }
-                    } catch (error) {
-                        // Handle translation error
-                        console.error("Translation Error:", error);
-                    }
-                }, 1000);
+        // Introduce a 1-second delay before triggering translation
+        timeoutId = setTimeout(async () => {
+          try {
+            // Check if the entered text is in Myanmar language
+            if (isMyanmarLanguage(originalPrompt)) {
+              const translation = await translateToEnglish(originalPrompt);
+              console.log("Translated:", translation);
+
+              setTranslatedPrompt(translation);
+            } else {
+              // Reset translated prompt if the language is not Myanmar
+              setTranslatedPrompt("");
             }
-        };
-
-        const inputElement = document.getElementById("promptInput");
-        inputElement.addEventListener("keyup", handleKeyUp);
-
-        return () => {
-            clearTimeout(timeoutId);
-            inputElement.removeEventListener("keyup", handleKeyUp);
-        };
-    }, [originalPrompt]);
-
-    const handleInputChange = (e) => {
-        const inputText = e.target.value;
-        setOriginalPrompt(inputText);
+          } catch (error) {
+            // Handle translation error
+            console.error("Translation Error:", error);
+          }
+        }, 1000);
+      }
     };
 
-    return (
-        <form
-            onSubmit={props.onSubmit}
-            className="py-5 animate-in fade-in duration-700"
-        >
-            <div className="flex max-w-[512px]">
-                <input
-                    type="text"
-                    id="promptInput"
-                    value={translatedPrompt || originalPrompt}
-                    onChange={handleInputChange}
-                    placeholder="Enter a prompt..."
-                    className="block w-full flex-grow rounded-l-md"
-                />
+    const handleInputChange = (e) => {
+      const inputText = e.target.value;
+      setOriginalPrompt(inputText);
+    };
 
-                <button
-                    className="bg-black text-white rounded-r-md text-small inline-block px-3 flex-none"
-                    type="submit"
-                >
-                    Generate
-                </button>
-            </div>
-        </form>
-    );
-}
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      // Handle form submission if needed
+    };
+
+    // Attach event listeners on component mount
+    const inputElement = document.getElementById("promptInput");
+    inputElement.addEventListener("keyup", handleKeyUp);
+
+    // Cleanup: Remove event listeners on component unmount
+    return () => {
+      clearTimeout(timeoutId);
+      inputElement.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [originalPrompt]);
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="py-5 animate-in fade-in duration-700"
+    >
+      <div className="flex max-w-[512px]">
+        <input
+          type="text"
+          id="promptInput"
+          value={translatedPrompt || originalPrompt}
+          onChange={handleInputChange}
+          placeholder="Enter a prompt..."
+          className="block w-full flex-grow rounded-l-md"
+        />
+
+        <button
+          className="bg-black text-white rounded-r-md text-small inline-block px-3 flex-none"
+          type="submit"
+        >
+          Generate
+        </button>
+      </div>
+    </form>
+  );
+};
+
+export default PromptForm;
